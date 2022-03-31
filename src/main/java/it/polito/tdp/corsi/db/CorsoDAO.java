@@ -39,4 +39,33 @@ public class CorsoDAO {
 			return null;
 		}	
 	}
+	
+	public Map<Corso,Integer> getIscritti(int periodo){
+		String sql = "SELECT c.codins, c.crediti, c.nome, c.pd, COUNT(*) AS n "
+				+ "FROM corso c, iscrizione i "
+				+ "WHERE c.codins = i.codins AND c.pd = ? "
+				+ "GROUP BY c.codins, c.crediti, c.nome, c.pd";
+		Map<Corso,Integer> result = new HashMap<Corso,Integer>();
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1,periodo); // i parametri partono da 1 .AAA.
+			ResultSet rs = st.executeQuery(); // eseguo la query solo dopo aver settato il parametro
+			
+			while(rs.next()) {
+				result.put(new Corso(rs.getString("codins"),rs.getInt("crediti"),
+	        			   rs.getString("nome"),rs.getInt("pd")), rs.getInt("n"));
+			}
+			rs.close();
+			st.close();
+			conn.close();
+			
+			return result;
+		
+		}catch(SQLException e) {
+			System.err.println("Errore nel DAO");
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

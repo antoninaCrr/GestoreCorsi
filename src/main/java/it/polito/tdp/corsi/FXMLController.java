@@ -8,7 +8,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.corsi.model.Corso;
+import it.polito.tdp.corsi.model.Divisione;
 import it.polito.tdp.corsi.model.Model;
+import it.polito.tdp.corsi.model.Studente;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -76,17 +78,63 @@ public class FXMLController {
 
     @FXML
     void numeroStudenti(ActionEvent event) {
+    	this.txtRisultato.clear();
+    	// ottengo l'input dell'utente
+    	String periodo = this.txtPeriodo.getText();
+    	int periodoNumerico;
+    	
+    	try {
+    		periodoNumerico = Integer.parseInt(periodo);
+    	}catch(NumberFormatException e) {
+    		this.txtRisultato.setText("Inserisci un periodo numerico!");
+    		return;
+    	}
+    	
+    	if(periodoNumerico<1 || periodoNumerico>2) {
+    		this.txtRisultato.setText("Inserisci 1 o 2!");
+    		return;
+    	}
+    	
+    	// se siamo qui l'input è corretto
+    	Map<Corso,Integer> iscritti = this.model.getIscritti(periodoNumerico);
+    	for(Corso ci : iscritti.keySet()) {
+    		// tutto funziona se ho definito hashCode e equals
+    		this.txtRisultato.appendText(ci + " "+ iscritti.get(ci)+"\n");
+    	}
+    	
     	
     }
 
     @FXML
     void stampaDivisione(ActionEvent event) {
-
+        this.txtRisultato.clear();
+    	String codins = this.txtCorso.getText(); 
+         if(codins == null || codins.equals("")) { // con null e' corretto  usare ==, con "" MAI ==
+        	 this.txtRisultato.appendText("Per favore inserisci un codice di un corso");
+        	 return;
+         }
+         
+         // TODO Controllo che il corso esista!
+         List<Divisione> risultato = this.model.getDivisioneStudenti(codins);
+         Collections.sort(risultato);
+         for(Divisione di : risultato) {
+        	 this.txtRisultato.appendText(di.getCDS()+"\t"+di.getN()+"\n");
+         }
     }
 
     @FXML
     void stampaStudenti(ActionEvent event) {
-
+        this.txtRisultato.clear();
+    	String codins = this.txtCorso.getText(); 
+         if(codins == null || codins.equals("")) { // con null e' corretto  usare ==, con "" MAI ==
+        	 this.txtRisultato.appendText("Per favore inserisci un codice di un corso");
+        	 return;
+         }
+         
+         // TODO Controllo che il corso esista!
+         for(Studente si: this.model.getStudentiByCorso(codins)) {
+        	 this.txtRisultato.appendText(si +"\n");
+         }
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
